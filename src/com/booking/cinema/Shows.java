@@ -10,11 +10,12 @@ public class Shows {
 	private Rows row;
 	private Seats seat;
 	Map<String, Boolean> SeatAvailabilityMap;
+	private String showNumber;
 	
-	
-	public Shows(Rows row, Seats seat) {
+	public Shows(Rows row, Seats seat, String showNumber) {
 		setRow(row);
 		setSeat(seat);
+		setShowNumber(showNumber);
 		SeatAvailabilityMap = new LinkedHashMap<String, Boolean>
 																(row.getRowArray().length 
 																	* 
@@ -75,10 +76,20 @@ public class Shows {
 	}
 
 	
+	public String getShowNumber() {
+		return showNumber;
+	}
+
+
+	public void setShowNumber(String showNumber) {
+		this.showNumber = showNumber;
+	}
+
+
 	@Override
 	public String toString() {
 		StringBuilder str = new StringBuilder();
-		str.append("[");
+		str.append("[ <<" + getShowNumber() + ">>");
 		str.append("\n");
 		Iterator<Entry<String, Boolean>> it = this.getSeatAvailabilityMap().entrySet().iterator();
 		
@@ -101,9 +112,8 @@ public class Shows {
 	public static void main(String[] args) {
 		
 		try {
-			Shows show = new Shows(new Rows(15), new Seats(8));
-			
-			
+			Shows show = new Shows(new Rows(15), new Seats(8), "12345");
+
 			System.out.println(show.buySeat("J3"));
 			System.out.println(show.buySeat("Q2"));
 			System.out.println(show.buySeat("F6"));
