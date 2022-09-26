@@ -16,7 +16,7 @@ public class CancellationWindow {
 	public boolean isExpired() {
 		
 		Date now = new Date();		
-		return now.getTime() - getInitialBookingTime().getTime() <= cancellationWindowLimit;
+		return now.getTime() - getInitialBookingTime().getTime() >= cancellationWindowLimit;
 	}
 	
 	public Date getInitialBookingTime() {
@@ -27,13 +27,14 @@ public class CancellationWindow {
 		this.initialBookingTime = new Date();
 	}
 
-	public long getCancellationWindow() {
+	private long getCancellationWindow() {
 		Date now = new Date();	
 		return now.getTime() - getInitialBookingTime().getTime();
 	}
 	
 	public long getTimeLeft() {
-		return this.cancellationWindowLimit - getCancellationWindow();
+		long timeLeft = this.cancellationWindowLimit - getCancellationWindow();
+		return timeLeft < 0 ? 0 : timeLeft ;
 	}
 	
 
@@ -41,16 +42,22 @@ public class CancellationWindow {
 		this.cancellationWindowLimit = cancellationWindowlimit;
 	}
 
-
-
+	public String toString() {
+		return "[CancellationWindow: Time Left: "
+				+ getTimeLeft()
+				+ ", isExpired: "
+				+ isExpired()
+				+ ", CancelationWindowSeconds: "
+				+ this.cancellationWindowLimit
+				+ "]";
+	}
+	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		CancellationWindow window = new CancellationWindow(120);
 		
-		for(int i = 0; i<1000; i++) {
-			System.out.println(window.getCancellationWindow());
-			System.out.println(window.getTimeLeft());
-			System.out.println(window.isExpired());
+		for(int i = 0; i<100; i++) {
+			System.out.println(window);
 		}
 		
 	}
