@@ -2,7 +2,7 @@ package com.booking.util;
 
 import java.util.Random;
 
-public class RandomStringUtil {
+public class StringUtil {
 
 	public static String randomStr(int length) {
 		
@@ -20,10 +20,14 @@ public class RandomStringUtil {
 	    return buffer.toString();
 
 	}
-	
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
 		
+	public static void main(String[] args) {
+		System.out.println(randomStr(6));
+		System.out.println(randomStr(6));
+		System.out.println(randomStr(7));
+		System.out.println(randomStr(8));
+		System.out.println(randomStr(2));
+		System.out.println(randomStr(0));
 	}
 
 }

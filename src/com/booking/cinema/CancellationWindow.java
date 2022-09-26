@@ -7,7 +7,6 @@ public class CancellationWindow {
 	private Date initialBookingTime;
 	private Long cancellationWindowLimit;
 	
-	
 	public CancellationWindow(long seconds){
 		this.setInitialBookingTime();
 		this.setCancellationWindowLimit(seconds);		
@@ -34,12 +33,16 @@ public class CancellationWindow {
 	
 	public long getTimeLeft() {
 		long timeLeft = this.cancellationWindowLimit - getCancellationWindow();
-		return timeLeft < 0 ? 0 : timeLeft ;
+		return timeLeft < 0 ? 0 : timeLeft/1000 ;
 	}
 	
 
 	private void setCancellationWindowLimit(long cancellationWindowlimit) {
-		this.cancellationWindowLimit = cancellationWindowlimit;
+		this.cancellationWindowLimit = cancellationWindowlimit*1000;
+	}
+	
+	private long getCancellationWindowLimit() {
+		return this.cancellationWindowLimit/1000;
 	}
 
 	public String toString() {
@@ -47,17 +50,23 @@ public class CancellationWindow {
 				+ getTimeLeft()
 				+ ", isExpired: "
 				+ isExpired()
-				+ ", CancelationWindowSeconds: "
-				+ this.cancellationWindowLimit
-				+ "]";
+				+ ", CancelationWindowLimit: "
+				+ getCancellationWindowLimit()
+				+ " seconds]";
 	}
 	
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
 		CancellationWindow window = new CancellationWindow(120);
 		
-		for(int i = 0; i<100; i++) {
-			System.out.println(window);
+		while(true) {
+			try {
+				System.out.println(window);
+				if(window.isExpired()){	break;}
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		
 	}

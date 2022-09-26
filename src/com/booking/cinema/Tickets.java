@@ -1,31 +1,28 @@
 package com.booking.cinema;
 
 import java.text.DecimalFormat;
-import com.booking.util.RandomStringUtil;
+import com.booking.util.StringUtil;
 
 public class Tickets {
 
 	private static long internal_counter = 0;
 	private long ticketNumber;
 	private String ticketNumberStr;
-	private Seats seat;
-	private Rows row;
+	private String ticketSeat;
 			
-	public Tickets(Seats seat, Rows row) {
+	public Tickets(String ticketSeat) {
 		
 		if(internal_counter > 1000000) {
 			internal_counter = 0;
 		}
-		
-		setSeat(seat);
-		setRow(row);
 		setTicketNumber(internal_counter);
 		setTicketNumberStr(6);
+		setTicketSeat(ticketSeat);
 		internal_counter++;	
 		
 	}
 	
-	public String generateTicketNumber() {
+	private String generateTicketNumber() {
 		DecimalFormat ticketnumberFormat = new DecimalFormat("000000");
 		return getTicketNumberStr() + ticketnumberFormat.format(getTicketNumber());
 	}
@@ -43,23 +40,15 @@ public class Tickets {
 	}
 
 	public void setTicketNumberStr(int length) {	    
-		ticketNumberStr = RandomStringUtil.randomStr(length);
+		ticketNumberStr = StringUtil.randomStr(length);
 	}
 
-	public Seats getSeat() {
-		return seat;
+	public String getTicketSeat() {
+		return ticketSeat;
 	}
 
-	public void setSeat(Seats seat) {
-		this.seat = seat;
-	}
-
-	public Rows getRow() {
-		return row;
-	}
-
-	public void setRow(Rows row) {
-		this.row = row;
+	public void setTicketSeat(String ticketSeat) {
+		this.ticketSeat = ticketSeat;
 	}
 
 	@Override
@@ -67,23 +56,31 @@ public class Tickets {
 		return "[Ticket: "
 				+ this.generateTicketNumber()
 				+ ", Row/Seat: "
-				+ this.getRow().toString() + this.getSeat().toString() 
+				+ this.getTicketSeat().toString()
 				+ "]";
 	}
 
 	public static void main(String[] args) {
-		Tickets ticket = new Tickets(new Seats(), new Rows());
-		Tickets ticket2 = new Tickets(new Seats(), new Rows());
-		Tickets ticket3 = new Tickets(new Seats(), new Rows());
-		Tickets ticket4 = new Tickets(new Seats(), new Rows());
-		Tickets ticket5 = new Tickets(new Seats(), new Rows());
-		Tickets ticket6 = new Tickets(new Seats(), new Rows());
-		System.out.println(ticket);
-		System.out.println(ticket2);
-		System.out.println(ticket3);
-		System.out.println(ticket4);
-		System.out.println(ticket5);
-		System.out.println(ticket6);
+		
+		try {
+			Tickets ticket  = new Tickets("A1");
+			Tickets ticket2 = new Tickets("B3");
+			Tickets ticket3 = new Tickets("Z10");
+			Tickets ticket4 = new Tickets("L2");
+			Tickets ticket5 = new Tickets("Q1");
+			Tickets ticket6 = new Tickets("R4");
+			System.out.println(ticket);
+			System.out.println(ticket2);
+			System.out.println(ticket3);
+			System.out.println(ticket4);
+			System.out.println(ticket5);
+			System.out.println(ticket6);
+			System.out.println(ticket);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		
 	}
 
