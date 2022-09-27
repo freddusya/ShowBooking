@@ -36,7 +36,6 @@ public class CancellationWindow {
 		return timeLeft < 0 ? 0 : timeLeft/1000 ;
 	}
 	
-
 	private void setCancellationWindowLimit(long cancellationWindowlimit) {
 		this.cancellationWindowLimit = cancellationWindowlimit*1000;
 	}
@@ -65,7 +64,7 @@ public class CancellationWindow {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				System.out.println(e);
 			}
 		}
 		
