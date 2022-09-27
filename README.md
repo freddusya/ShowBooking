@@ -84,17 +84,28 @@ $ javac @sources.txt
 > java com.booking.runthis.RunThis
 
 5. The following will appear:
--------------------------------------------------------------------------
-Please enter your data below: (send 'bye' | 'quit' | 'exit' to exit)
-For usage:
----Admin---
-Admin Setup <Show number> <Number of Rows> <Number of Seats per row> <Cancellation window in minutes>
-Admin View <Show number>
 
----Buyer---
-Buyer availability <show number>
-Buyer book <Show number> <Phone number> <Seats in comma separated list>
-Buyer cancel <Ticket number> <Phone number>
+ -------------------------------------------------------------------------
+
+ Please enter your data below: (send 'bye' | 'quit' | 'exit' to exit)
+
+ For usage:
+
+ ---Admin---
+
+ Admin Setup <Show number> <Number of Rows> <Number of Seats per row> <Cancellation window in minutes>
+
+ Admin View <Show number>
+
+
+ ---Buyer---
+
+ Buyer availability <show number>
+
+ Buyer book <Show number> <Phone number> <Seats in comma separated list>
+
+ Buyer cancel <Ticket number> <Phone number>
+
 --------------------------------------------------------------------------
 
 6. The program is now up and running, you may test out the features. Use 'bye' | 'quit' | 'exit' to exit
