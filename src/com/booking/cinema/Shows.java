@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import com.booking.person.Buyer;
 
@@ -16,7 +17,8 @@ public class Shows {
 	Map<String, Boolean> SeatAvailabilityMap;
 	private String showNumber;
 	private long cancellationWindowLimit;
-	private List<Buyer> buyerList; 
+	private List<Buyer> buyerList;
+	private List<Buyer> exclusionList;
 	
 	public Shows(String showNumber, Rows row, Seats seat, long cancellationWindowSeconds) {
 		setRow(row);
@@ -37,32 +39,91 @@ public class Shows {
 		}
 		
 		buyerList = new ArrayList<Buyer>();
-		
+		exclusionList = new ArrayList<Buyer>();
 	}
 	
+	public String view() {
+		StringBuilder sb = new StringBuilder();
+		if (this != null ) {
+			List<Buyer> buyers = getUniqueBuyerList();
+			sb.append("Show Number: " + this.getShowNumber());
+			sb.append("\n");
+			sb.append("Buyers:");
+			sb.append("\n");
+			
+			int count = 1;
+			if (buyers != null || !buyers.isEmpty()) {
+			for(Buyer buyer: buyers) {
+				List<Tickets> tickets = getTicketsBoughtByBuyerOnThisShowNumber(buyer, this.getShowNumber());
+				sb.append(count + ": buyer with tel number: "+buyer.getTelNumber());
+				sb.append("\n");
+				sb.append("---> tickets bought:");
+				sb.append("\n");
+				for(Tickets ticket: tickets) {
+					sb.append("- Ticket Number:" + ticket.getGeneratedTicketNumber() 
+					+ ", Seat Number: "+ ticket.getTicketSeat());
+					sb.append("\n");
+				}
+				count++;
+				}
+			}else {
+				sb.append("No buyers found.");
+			}
+			sb.append("");
+		}
+		return sb.toString();
+	}
+	
+	private List<Buyer> getUniqueBuyerList() {
+		// TODO Auto-generated method stub
+		return this.getBuyerList().stream().distinct().collect(Collectors.toList());
+	}
+
+	private List<Tickets> getTicketsBoughtByBuyerOnThisShowNumber(Buyer buyer, String showNumber) {
+		
+		List<Tickets> ticketList = buyer.getTicketList();
+		List<Tickets> resultList = ticketList.stream().filter(t -> t.getShowNumber().equalsIgnoreCase(showNumber)).collect(Collectors.toList());
+		
+		return resultList;
+	}
+
 	private boolean addBuyer(Buyer buyer, String ticketSeat) {
-		String telNumber = buyer.getTelNumber();
-		Boolean isTicketAvailable = this.setSeatToUnavailable(ticketSeat);
-		Tickets ticket = new Tickets(this.getShowNumber(), ticketSeat, this.getCancellationWindowLimit(), telNumber);
-		if(isTicketAvailable) {
-			buyer.addTicket(ticket);
-			buyerList.add(buyer);	
-		}
-		return true;
+			String telNumber = buyer.getTelNumber();
+			Boolean isTicketAvailable = this.setSeatToUnavailable(ticketSeat);
+			Tickets ticket = new Tickets(this.getShowNumber(), ticketSeat, this.getCancellationWindowLimit(), telNumber);
+			if(isTicketAvailable) {
+				buyer.addTicket(ticket);
+				buyerList.add(buyer);
+			}
+			return true;
 	}
-	
+
 	public boolean bookTickets(Buyer buyer, String ticketSeats) {
-		
-		String[] ticketSeatsArray = ticketSeats.split(",");
-		
-		for(int i=0; i<ticketSeatsArray.length; i++) {
-			String ticketSeat = ticketSeatsArray[i];
-			this.addBuyer(buyer, ticketSeat);
+		if(!ifBuyerExistsInExclusionList(buyer, this.exclusionList)) {
+			String[] ticketSeatsArray = ticketSeats.split(",");
+			
+			for(int i=0; i<ticketSeatsArray.length; i++) {
+				String ticketSeat = ticketSeatsArray[i];
+				this.addBuyer(buyer, ticketSeat);
+			}
+			
+			//if buyer managed to buy tickets, add buyer into exclusion list so they can't buy with same tel number
+			//a buyer has a tel number
+			if(buyer.getTicketList().size() > 0) { 
+				this.exclusionList.add(buyer);
+			}
+		}else {
+			System.out.println("buyer can only buy once with this tel number "+ buyer.getTelNumber());
+			return false;
 		}
-		
 		return true;
 	}
 	
+	private boolean ifBuyerExistsInExclusionList(Buyer buyer, List<Buyer> exclusionList) {
+		List<Buyer> list = exclusionList.stream().filter(b -> b.getTelNumber().equalsIgnoreCase(buyer.getTelNumber())).collect(Collectors.toList());
+		return list.size() > 0;
+	}
+
 	public boolean cancelTicket(String ticketNumber, String telNumber) {
 		List<Buyer> buyerList = findBuyersByTelNumber(telNumber);
 		if(buyerList != null || !buyerList.isEmpty()) {
@@ -77,7 +138,7 @@ public class Shows {
 	
 	
 	private List<Buyer> findBuyersByTelNumber(String telNumber) {
-		List<Buyer> buyersList = this.getBuyerList();
+		List<Buyer> buyersList = getUniqueBuyerList();
 		List<Buyer> resultList = new ArrayList<Buyer>();
 		for(Buyer buyer: buyersList) {
 			if(buyer.getTelNumber().equalsIgnoreCase(telNumber)) {
@@ -87,18 +148,25 @@ public class Shows {
 		return resultList;
 	}
 	
-	public boolean removeTicket(Buyer buyer, String ticketNumber) {
+	public void removeTicket(Buyer buyer, String ticketNumber) {
+	
 		List<Tickets> ticketsList = buyer.getTicketList();
+		List<Tickets> resultList = new ArrayList<Tickets>() ;
 			for(Tickets ticket: ticketsList){
 				long timeLeftForCancellation = ticket.getTimeLeftForCancellation();
-				if (ticketNumber.equalsIgnoreCase(ticket.getGeneratedTicketNumber()) && timeLeftForCancellation != 0) {
-					buyer.removeTicket(ticket);
+				if (ticketNumber.equalsIgnoreCase(ticket.getGeneratedTicketNumber())) {
+					if(timeLeftForCancellation != 0) {
+						setSeatToAvailable(ticket.getTicketSeat());
+					}else {
+						System.out.println("No cancellation allowed because timeLeftForCancellation is " + timeLeftForCancellation);
+					}
 				}else {
-					System.out.println("No cancellation allowed because timeLeftForCancellation is " + timeLeftForCancellation);
-					return false;
+					//tickets which doesnt match ticketNumber, 
+					//we add remaining tickets into a list and then they would be the new ticketList
+					resultList.add(ticket);
 				}
 			}
-		return true;
+		buyer.setTicketList(resultList);
 	}
 	
 	public long getCancellationWindowLimit() {
@@ -126,6 +194,19 @@ public class Shows {
 			return true;
 		}else {
 			System.out.println("Seat " + seat + " is not available for Show " + this.getShowNumber());
+			return false;
+		}
+	}
+	
+	public boolean setSeatToAvailable(String seat) {
+		
+		Map<String, Boolean> availabilityMap = this.getSeatAvailabilityMap();
+		if(!isSeatAvailable(seat)) {
+			availabilityMap.put(seat, true);
+			System.out.println("Seat " + seat + " has been cancelled for Show " + this.getShowNumber());
+			return true;
+		}else {
+			System.out.println("Seat " + seat + " is not available to be cancelled for Show " + this.getShowNumber());
 			return false;
 		}
 	}
@@ -183,7 +264,7 @@ public class Shows {
 	@Override
 	public String toString() {
 		StringBuilder str = new StringBuilder();
-		str.append("[ <<" + getShowNumber() + ">>");
+		str.append("[ <<" + getShowNumber() + ">> -- seats availability");
 		str.append("\n");
 		Iterator<Entry<String, Boolean>> it = this.getSeatAvailabilityMap().entrySet().iterator();
 		
@@ -191,7 +272,7 @@ public class Shows {
 			for(int j = 0 ; j < this.getSeat().getSeatArray().length; j++) {
 				Entry<String, Boolean> e = it.next();
 				str.append("{");
-				str.append(e.toString());
+				str.append(e.getKey() + "=" + displayEntryAvailability(e.getValue()));
 				str.append("}");
 				str.append(",");
 			}
@@ -203,6 +284,11 @@ public class Shows {
 		return str.toString();
 	}
 	
+	private String displayEntryAvailability(Boolean value) {
+		// TODO Auto-generated method stub
+		return value ? "Yes" : "No";
+	}
+
 	public static void main(String[] args) {
 		
 		try {
@@ -217,9 +303,20 @@ public class Shows {
 			
 			show1.bookTickets(buyerA, "A1,A2,A3,A4");
 			show1.bookTickets(buyerB, "A1,A2,A3,A4");
-			System.out.println(show1.getCurrentAvailableSeats());
+			
+			String buyerA_telNumber = buyerA.getTelNumber();
+			String buyerA_ticketNumber = buyerA.getTicketList().get(1).getGeneratedTicketNumber();
+			
+			System.out.println("cancelling " + buyerA.getTicketList().get(1) + " for " + buyerA);
+			show1.cancelTicket(buyerA_ticketNumber, buyerA_telNumber);
+			show1.bookTickets(buyerB, "A1,A2,A3,A4");
+			show1.bookTickets(buyerA, "B1,B2,B3,B4");
+			System.out.println("list of available seats of show1: "+
+			show1.getCurrentAvailableSeats());
 			
 			System.out.println(show1);
+			
+			System.out.println(show1.view());
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

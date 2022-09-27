@@ -25,14 +25,24 @@ public class Tickets {
 		setTicketSeat(ticketSeat);
 		setCancelWindow(new CancellationWindow(cancellationWindowSeconds));
 		setTelNumber(telNumber);
+		generateTicketNumber();
 		internal_counter++;	
 	}
 	
-	private String generateTicketNumber() {
+	private void generateTicketNumber() {
 		DecimalFormat ticketnumberFormat = new DecimalFormat("000000");
 		setGeneratedTicketNumber(getTicketNumberStr() + ticketnumberFormat.format(getTicketNumber()));
-		return getGeneratedTicketNumber();
 	}
+	
+
+	private void setGeneratedTicketNumber(String generatedTicketNumber) {
+		this.generatedTicketNumber = generatedTicketNumber;
+	}
+	
+	public String getGeneratedTicketNumber() {
+		return generatedTicketNumber;
+	}
+	
 	
 	public long getTimeLeftForCancellation() {
 		return getCancelWindow().getTimeLeft();
@@ -86,19 +96,11 @@ public class Tickets {
 		this.telNumber = telNumber;
 	}
 
-	private void setGeneratedTicketNumber(String generatedTicketNumber) {
-		this.generatedTicketNumber = generatedTicketNumber;
-	}
-	
-	public String getGeneratedTicketNumber() {
-		return generatedTicketNumber;
-	}
-	
 
 	@Override
 	public String toString() {
 		return "[Ticket: "
-				+ this.generateTicketNumber()
+				+ this.getGeneratedTicketNumber()
 				+ ", showNumber: "
 				+ this.getShowNumber()
 				+ ", Row/Seat: "

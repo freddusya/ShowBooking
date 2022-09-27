@@ -15,6 +15,10 @@ public class Buyer {
 		this.telNumber = telNumber;
 	}
 	
+	public void setTicketList(List<Tickets> ticketList) {
+		this.ticketList = ticketList;
+	}
+	
 	public List<Tickets> getTicketList() {
 		return ticketList;
 	}
@@ -30,7 +34,7 @@ public class Buyer {
 	public void addTicket(Tickets ticket) {
 		// TODO Auto-generated method stub
 		this.ticketList.add(ticket);
-		System.out.println("buyer with telNumber "+this.getTelNumber() + " trying to purchase "+ ticket.getTicketSeat());
+		System.out.println("buyer with telNumber "+this.getTelNumber() + " purchased "+ ticket.getTicketSeat() + " for show " + ticket.getShowNumber());
 	}
 	
 	public void removeTicket(Tickets ticket) {
@@ -39,6 +43,16 @@ public class Buyer {
 	}
 	
 	
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return "[Buyer-> telNumber: "
+				+ this.getTelNumber()
+				+ ", total_tickets: "
+				+ this.getTicketList().size()
+				+ "]";
+	}
+
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 
