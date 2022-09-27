@@ -72,10 +72,12 @@ refer to #To run the code# below for more info.
 
 # Linux / MacOS
 $ find -name "*.java" > sources.txt
+
 $ javac @sources.txt
 
 # Windows
 > dir /s /B *.java > sources.txt
+
 > javac @sources.txt
 
 4. Invoke RunThis.java via the following:
